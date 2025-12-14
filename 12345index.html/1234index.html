@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teams Pro Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4f46e5;
+        --teams: #6264A7;
+        --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --glass: rgba(255, 255, 255, 0.95);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body { background: var(--bg-gradient); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    
+    .container {
+        background: var(--glass);
+        width: 100%; max-width: 500px; padding: 40px; border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center;
+    }
+    h1 { color: #333; margin-bottom: 10px; }
+    p { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+    
+    .btn {
+        width: 100%; padding: 15px; border: none; border-radius: 12px;
+        font-size: 1rem; font-weight: 600; cursor: pointer; color: white;
+        transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none;
+        margin-bottom: 15px;
+    }
+    .btn-teams { background: var(--teams); }
+    .btn-generate { background: var(--primary); }
+    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    input {
+        width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 12px;
+        font-size: 1rem; margin-bottom: 15px; outline: none; transition: 0.3s;
+    }
+    input:focus { border-color: var(--primary); }
+
+    .result-box {
+        background: #f0fdf4; border: 1px dashed #22c55e; padding: 15px;
+        border-radius: 10px; margin-top: 20px; display: none; word-break: break-all;
+    }
+    .final-link { color: #15803d; font-family: monospace; font-size: 0.9rem; margin-bottom: 10px; }
+    .gizli { display: none !important; }
+</style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- MÜƏLLİM PANELİ -->
+        <div id="muellimPaneli">
+            <h1>Müəllim Paneli</h1>
+            <p>1. Aşağıdakı düymə ilə Teams-i açın və görüş linkini kopyalayın.</p>
+            
+            <a href="https://teams.microsoft.com/_#/scheduling-form/" target="_blank" class="btn btn-teams">
+                <i class="fab fa-microsoft"></i> Teams Təqvimini Aç
+            </a>
+
+            <p style="margin-top:20px;">2. Kopyaladığınız linki bura yapışdırın:</p>
+            <input type="text" id="teamsInput" placeholder="Teams linki bura...">
+
+            <button class="btn btn-generate" onclick="linkYarat()">
+                <i class="fas fa-magic"></i> Linki Yarat
+            </button>
+
+            <!-- Nəticə burada çıxacaq -->
+            <div id="neticeQutusu" class="result-box">
+                <div class="final-link" id="finalLink">...</div>
+                <button class="btn" style="background:#22c55e; margin:0;" onclick="kopyala()">
+                    <i class="far fa-copy"></i> Kopyala
+                </button>
+            </div>
+        </div>
+
+        <!-- ŞAGİRD PANELİ -->
+        <div id="sagirdPaneli" class="gizli">
+            <img src="https://img.icons8.com/color/96/microsoft-teams-2019.png" style="margin-bottom:15px;">
+            <h1>Dərsə Xoş Gəldiniz!</h1>
+            <p>Müəllim dərsi başlatdı. Qoşulmaq üçün basın:</p>
+            <a id="joinBtn" href="#" class="btn btn-teams">
+                <i class="fas fa-video"></i> Dərsə İndi Qoşul
+            </a>
+        </div>
+
+    </div>
+
+<script>
+    // Səhifə açılan kimi yoxlayırıq: Bu şagirddir yoxsa müəllim?
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const meetingLink = urlParams.get('ders');
+
+        if (meetingLink) {
+            // Şagird rejimi
+            document.getElementById('muellimPaneli').classList.add('gizli');
+            document.getElementById('sagirdPaneli').classList.remove('gizli');
+            document.getElementById('joinBtn').href = meetingLink;
+        }
+    }
+
+    function linkYarat() {
+        const inputVal = document.getElementById('teamsInput').value;
+        
+        // Əgər xana boşdursa, xəbərdarlıq etsin
+        if (inputVal.trim() === "") {
+            alert("Zəhmət olmasa əvvəlcə linki xanaya yapışdırın!");
+            return;
+        }
+
+        // Linki yaradırıq (HEÇ BİR YOXLAMA OLMADAN)
+        // Buradakı məntiq: Saytın öz adını götür + sonuna '?ders=' + yapışdırılan linki əlavə et.
+        const cariSayt = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        const yeniLink = cariSayt + "?ders=" + encodeURIComponent(inputVal);
+        
+        // Nəticəni göstəririk
+        document.getElementById('neticeQutusu').style.display = 'block';
+        document.getElementById('finalLink').innerText = yeniLink;
+    }
+
+    function kopyala() {
+        const text = document.getElementById('finalLink').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Link kopyalandı! Whatsapp-a ata bilərsiniz.");
+        }).catch(err => {
+            alert("Kopyalanma alınmadı, zəhmət olmasa linki əllə seçib kopyalayın.");
+        });
+    }
+</script>
+
+</body>
+</html>
